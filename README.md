@@ -22,7 +22,7 @@ A Permission Helper class to Request Permission Launcher with Kotlin in Android.
                         android.Manifest.permission.READ_SMS,
                         android.Manifest.permission.RECEIVE_SMS
                     ),
-                    showDialog = false,
+                    showDialog = true,
                     callBack = object : PermissionsUtil.PermissionsListenerCallback {
                         override fun onPermissionGranted() {
                             /* Perform action on Permission Granted*/
@@ -45,7 +45,7 @@ A Permission Helper class to Request Permission Launcher with Kotlin in Android.
                         android.Manifest.permission.READ_SMS,
                         android.Manifest.permission.RECEIVE_SMS
                     ),
-                    showDialog = false,
+                    showDialog = true,
                     callBack = object : PermissionsUtil.PermissionsListenerCallback {
                         override fun onPermissionGranted() {
                             /* Perform action on Permission Granted*/
