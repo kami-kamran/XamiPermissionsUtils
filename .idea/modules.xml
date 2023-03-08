@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/XamiPermissionsUtils.iml" filepath="$PROJECT_DIR$/.idea/XamiPermissionsUtils.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/XamiPermission/XamiPermissionsUtils.XamiPermission.iml" filepath="$PROJECT_DIR$/.idea/modules/XamiPermission/XamiPermissionsUtils.XamiPermission.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/XamiPermission/XamiPermissionsUtils.XamiPermission.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/XamiPermission/XamiPermissionsUtils.XamiPermission.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/XamiPermission/XamiPermissionsUtils.XamiPermission.main.iml" filepath="$PROJECT_DIR$/.idea/modules/XamiPermission/XamiPermissionsUtils.XamiPermission.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/XamiPermission/XamiPermissionsUtils.XamiPermission.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/XamiPermission/XamiPermissionsUtils.XamiPermission.unitTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/XamiPermissionsUtils.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/XamiPermissionsUtils.app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/XamiPermissionsUtils.app.androidTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/XamiPermissionsUtils.app.androidTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/XamiPermissionsUtils.app.main.iml" filepath="$PROJECT_DIR$/.idea/modules/app/XamiPermissionsUtils.app.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/XamiPermissionsUtils.app.unitTest.iml" filepath="$PROJECT_DIR$/.idea/modules/app/XamiPermissionsUtils.app.unitTest.iml" />
+    </modules>
+  </component>
+</project>

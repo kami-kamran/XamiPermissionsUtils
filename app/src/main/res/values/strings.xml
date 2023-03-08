@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">XamiPermission</string>
+    <string name="permission_msg">App required %1$s! </string>
+</resources>
