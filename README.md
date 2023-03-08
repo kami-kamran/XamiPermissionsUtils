@@ -2,8 +2,8 @@
 A Permission Helper class to Request Permission Launcher with Kotlin in Android. A Utils Helper for the run time permissions for request permission launchers. and get its call back granted or not
 
 1) Add this SDK in your App gradle
-
- implementation 'com.github.kami-kamran:XamiPermissionsUtils:0.0.1'
+### SDK ####
+ ### implementation 'com.github.kami-kamran:XamiPermissionsUtils:0.0.1' ###
 
  #### How to use inside Activity ####
 
