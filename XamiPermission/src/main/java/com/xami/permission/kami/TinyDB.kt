@@ -1,61 +1,35 @@
-package com.xami.permission.kami;
+package com.xami.permission.kami
 
+import android.content.Context
+import android.content.SharedPreferences
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import com.xami.permission.kami.TinyDB
+import android.graphics.Bitmap.CompressFormat
+import android.text.TextUtils
+import com.google.gson.Gson
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
+import android.os.Environment
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.lang.Exception
+import java.lang.NullPointerException
+import java.lang.NumberFormatException
+import java.util.*
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.Bitmap.CompressFormat;
-import android.graphics.BitmapFactory;
-import android.os.Environment;
-import android.text.TextUtils;
-
-import com.google.gson.Gson;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Map;
-
-
-public class TinyDB {
-
-    private static TinyDB instance = null;
-    private String FILE_NAME_SHARED_PREF = "MyPref";
-    private SharedPreferences preferences;
-    private String DEFAULT_APP_IMAGEDATA_DIRECTORY;
-    private String lastImagePath = "";
-
-    public TinyDB(Context appContext) {
-        preferences = appContext.getSharedPreferences(FILE_NAME_SHARED_PREF, Context.MODE_PRIVATE );
-    }
-
-    public static TinyDB getInstance(Context context) {
-        if (instance != null) return instance;
-        else return instance = new TinyDB(context);
-    }
+class TinyDB(appContext: Context) {
+    private val FILE_NAME_SHARED_PREF = "MyPref"
+    private val preferences: SharedPreferences
+    private var DEFAULT_APP_IMAGEDATA_DIRECTORY: String? = null
 
     /**
-     * Check if external storage is writable or not
+     * Returns the String path of the last saved image
      *
-     * @return true if writable, false otherwise
+     * @return string path of the last saved image
      */
-    public static boolean isExternalStorageWritable() {
-        return Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState());
-    }
-
-    /**
-     * Check if external storage is readable or not
-     *
-     * @return true if readable, false otherwise
-     */
-    public static boolean isExternalStorageReadable() {
-        String state = Environment.getExternalStorageState();
-
-        return Environment.MEDIA_MOUNTED.equals(state) ||
-                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
-    }
+    var savedImagePath = ""
+        private set
 
     /**
      * Decodes the Bitmap from 'path' and returns it
@@ -63,26 +37,15 @@ public class TinyDB {
      * @param path image path
      * @return the Bitmap from 'path'
      */
-    public Bitmap getImage(String path) {
-        Bitmap bitmapFromPath = null;
+    fun getImage(path: String?): Bitmap? {
+        var bitmapFromPath: Bitmap? = null
         try {
-            bitmapFromPath = BitmapFactory.decodeFile(path);
-
-        } catch (Exception e) {
+            bitmapFromPath = BitmapFactory.decodeFile(path)
+        } catch (e: Exception) {
             // TODO: handle exception
-            e.printStackTrace();
+            e.printStackTrace()
         }
-
-        return bitmapFromPath;
-    }
-
-    /**
-     * Returns the String path of the last saved image
-     *
-     * @return string path of the last saved image
-     */
-    public String getSavedImagePath() {
-        return lastImagePath;
+        return bitmapFromPath
     }
 
     /**
@@ -93,19 +56,15 @@ public class TinyDB {
      * @param theBitmap    the image you want to save as a Bitmap
      * @return returns the full path(file system address) of the saved image
      */
-    public String putImage(String theFolder, String theImageName, Bitmap theBitmap) {
-        if (theFolder == null || theImageName == null || theBitmap == null)
-            return null;
-
-        this.DEFAULT_APP_IMAGEDATA_DIRECTORY = theFolder;
-        String mFullPath = setupFullPath(theImageName);
-
-        if (!mFullPath.equals("")) {
-            lastImagePath = mFullPath;
-            saveBitmap(mFullPath, theBitmap);
+    fun putImage(theFolder: String?, theImageName: String?, theBitmap: Bitmap?): String? {
+        if (theFolder == null || theImageName == null || theBitmap == null) return null
+        DEFAULT_APP_IMAGEDATA_DIRECTORY = theFolder
+        val mFullPath = setupFullPath(theImageName)
+        if (mFullPath != "") {
+            savedImagePath = mFullPath
+            saveBitmap(mFullPath, theBitmap)
         }
-
-        return mFullPath;
+        return mFullPath
     }
 
     /**
@@ -115,28 +74,25 @@ public class TinyDB {
      * @param theBitmap the image you want to save as a Bitmap
      * @return true if image was saved, false otherwise
      */
-    public boolean putImageWithFullPath(String fullPath, Bitmap theBitmap) {
-        return !(fullPath == null || theBitmap == null) && saveBitmap(fullPath, theBitmap);
+    fun putImageWithFullPath(fullPath: String?, theBitmap: Bitmap?): Boolean {
+        return !(fullPath == null || theBitmap == null) && saveBitmap(fullPath, theBitmap)
     }
-
     // Getters
-
     /**
      * Creates the path for the image with name 'imageName' in DEFAULT_APP.. directory
      *
      * @param imageName name of the image
      * @return the full path of the image. If it failed to create directory, return empty string
      */
-    private String setupFullPath(String imageName) {
-        File mFolder = new File(Environment.getExternalStorageDirectory(), DEFAULT_APP_IMAGEDATA_DIRECTORY);
-
-        if (isExternalStorageReadable() && isExternalStorageWritable() && !mFolder.exists()) {
+    private fun setupFullPath(imageName: String): String {
+        val mFolder =
+            File(Environment.getExternalStorageDirectory(), DEFAULT_APP_IMAGEDATA_DIRECTORY)
+        if (isExternalStorageReadable && isExternalStorageWritable && !mFolder.exists()) {
             if (!mFolder.mkdirs()) {
-                return "";
+                return ""
             }
         }
-
-        return mFolder.getPath() + '/' + imageName;
+        return mFolder.path + '/' + imageName
     }
 
     /**
@@ -146,51 +102,38 @@ public class TinyDB {
      * @param bitmap   the image as a Bitmap
      * @return true if it successfully saved, false otherwise
      */
-    private boolean saveBitmap(String fullPath, Bitmap bitmap) {
-        if (fullPath == null || bitmap == null)
-            return false;
-
-        boolean fileCreated = false;
-        boolean bitmapCompressed = false;
-        boolean streamClosed = false;
-
-        File imageFile = new File(fullPath);
-
-        if (imageFile.exists())
-            if (!imageFile.delete())
-                return false;
-
+    private fun saveBitmap(fullPath: String?, bitmap: Bitmap?): Boolean {
+        if (fullPath == null || bitmap == null) return false
+        var fileCreated = false
+        var bitmapCompressed = false
+        var streamClosed = false
+        val imageFile = File(fullPath)
+        if (imageFile.exists()) if (!imageFile.delete()) return false
         try {
-            fileCreated = imageFile.createNewFile();
-
-        } catch (IOException e) {
-            e.printStackTrace();
+            fileCreated = imageFile.createNewFile()
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
-
-        FileOutputStream out = null;
+        var out: FileOutputStream? = null
         try {
-            out = new FileOutputStream(imageFile);
-            bitmapCompressed = bitmap.compress(CompressFormat.PNG, 100, out);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            bitmapCompressed = false;
-
+            out = FileOutputStream(imageFile)
+            bitmapCompressed = bitmap.compress(CompressFormat.PNG, 100, out)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            bitmapCompressed = false
         } finally {
             if (out != null) {
                 try {
-                    out.flush();
-                    out.close();
-                    streamClosed = true;
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    streamClosed = false;
+                    out.flush()
+                    out.close()
+                    streamClosed = true
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    streamClosed = false
                 }
             }
         }
-
-        return (fileCreated && bitmapCompressed && streamClosed);
+        return fileCreated && bitmapCompressed && streamClosed
     }
 
     /**
@@ -199,8 +142,8 @@ public class TinyDB {
      * @param key SharedPreferences key
      * @return int value at 'key' or 'defaultValue' if key not found
      */
-    public int getInt(String key) {
-        return preferences.getInt(key, 0);
+    fun getInt(key: String?): Int {
+        return preferences.getInt(key, 0)
     }
 
     /**
@@ -209,15 +152,12 @@ public class TinyDB {
      * @param key SharedPreferences key
      * @return ArrayList of Integers
      */
-    public ArrayList<Integer> getListInt(String key) {
-        String[] myList = TextUtils.split(preferences.getString(key, ""), "‚‗‚");
-        ArrayList<String> arrayToList = new ArrayList<>(Arrays.asList(myList));
-        ArrayList<Integer> newList = new ArrayList<>();
-
-        for (String item : arrayToList)
-            newList.add(Integer.parseInt(item));
-
-        return newList;
+    fun getListInt(key: String?): ArrayList<Int> {
+        val myList = TextUtils.split(preferences.getString(key, ""), "‚‗‚")
+        val arrayToList = ArrayList(Arrays.asList(*myList))
+        val newList = ArrayList<Int>()
+        for (item in arrayToList) newList.add(item.toInt())
+        return newList
     }
 
     /**
@@ -227,8 +167,8 @@ public class TinyDB {
      * @param defaultValue long value returned if key was not found
      * @return long value at 'key' or 'defaultValue' if key not found
      */
-    public long getLong(String key, long defaultValue) {
-        return preferences.getLong(key, defaultValue);
+    fun getLong(key: String?, defaultValue: Long): Long {
+        return preferences.getLong(key, defaultValue)
     }
 
     /**
@@ -237,8 +177,8 @@ public class TinyDB {
      * @param key SharedPreferences key
      * @return float value at 'key' or 'defaultValue' if key not found
      */
-    public float getFloat(String key) {
-        return preferences.getFloat(key, 0);
+    fun getFloat(key: String?): Float {
+        return preferences.getFloat(key, 0f)
     }
 
     /**
@@ -248,14 +188,12 @@ public class TinyDB {
      * @param defaultValue double value returned if exception is thrown
      * @return double value at 'key' or 'defaultValue' if exception is thrown
      */
-    public double getDouble(String key, double defaultValue) {
-        String number = getString(key);
-
-        try {
-            return Double.parseDouble(number);
-
-        } catch (NumberFormatException e) {
-            return defaultValue;
+    fun getDouble(key: String?, defaultValue: Double): Double {
+        val number = getString(key)
+        return try {
+            number!!.toDouble()
+        } catch (e: NumberFormatException) {
+            defaultValue
         }
     }
 
@@ -265,15 +203,12 @@ public class TinyDB {
      * @param key SharedPreferences key
      * @return ArrayList of Double
      */
-    public ArrayList<Double> getListDouble(String key) {
-        String[] myList = TextUtils.split(preferences.getString(key, ""), "‚‗‚");
-        ArrayList<String> arrayToList = new ArrayList<String>(Arrays.asList(myList));
-        ArrayList<Double> newList = new ArrayList<Double>();
-
-        for (String item : arrayToList)
-            newList.add(Double.parseDouble(item));
-
-        return newList;
+    fun getListDouble(key: String?): ArrayList<Double> {
+        val myList = TextUtils.split(preferences.getString(key, ""), "‚‗‚")
+        val arrayToList = ArrayList(Arrays.asList(*myList))
+        val newList = ArrayList<Double>()
+        for (item in arrayToList) newList.add(item.toDouble())
+        return newList
     }
 
     /**
@@ -282,13 +217,13 @@ public class TinyDB {
      * @param key SharedPreferences key
      * @return String value at 'key' or "" (empty String) if key not found
      */
-    public String getString(String key) {
-        return preferences.getString(key, "");
-    }
-    public String getStringwithDef(String key,String def) {
-        return preferences.getString(key, def);
+    fun getString(key: String?): String? {
+        return preferences.getString(key, "")
     }
 
+    fun getStringwithDef(key: String?, def: String?): String? {
+        return preferences.getString(key, def)
+    }
 
     /**
      * Get parsed ArrayList of String from SharedPreferences at 'key'
@@ -296,8 +231,8 @@ public class TinyDB {
      * @param key SharedPreferences key
      * @return ArrayList of String
      */
-    public ArrayList<String> getListString(String key) {
-        return new ArrayList<String>(Arrays.asList(TextUtils.split(preferences.getString(key, ""), "‚‗‚")));
+    fun getListString(key: String?): ArrayList<String> {
+        return ArrayList(Arrays.asList(*TextUtils.split(preferences.getString(key, ""), "‚‗‚")))
     }
 
     /**
@@ -306,35 +241,30 @@ public class TinyDB {
      * @param key SharedPreferences key
      * @return boolean value at 'key' or 'defaultValue' if key not found
      */
-    public boolean getBoolean(String key) {
-        return preferences.getBoolean(key, false);
+    fun getBoolean(key: String?): Boolean {
+        return preferences.getBoolean(key, false)
     }
-    public boolean getBooleandefaultTrue(String key) {
-        return preferences.getBoolean(key, true);
+
+    fun getBooleandefaultTrue(key: String?): Boolean {
+        return preferences.getBoolean(key, true)
     }
 
     // Put methods
-
-    public <T> ArrayList<T> getListObject(String key, Class<T> mClass) {
-        Gson gson = new Gson();
-
-        ArrayList<String> objStrings = getListString(key);
-        ArrayList<T> objects = new ArrayList<>();
-
-        for (String jObjString : objStrings) {
-            T value = gson.fromJson(jObjString, mClass);
-            objects.add(value);
+    fun <T> getListObject(key: String?, mClass: Class<T>?): ArrayList<T> {
+        val gson = Gson()
+        val objStrings = getListString(key)
+        val objects = ArrayList<T>()
+        for (jObjString in objStrings) {
+            val value = gson.fromJson(jObjString, mClass)
+            objects.add(value)
         }
-        return objects;
+        return objects
     }
 
-    public Object getObject(String key, Class<?> classOfT) {
-
-        String json = getString(key);
-        Object value = new Gson().fromJson(json, classOfT);
-        if (value == null)
-            throw new NullPointerException();
-        return value;
+    fun getObject(key: String?, classOfT: Class<*>?): Any {
+        val json = getString(key)
+        val value = Gson().fromJson(json, classOfT) ?: throw NullPointerException()
+        return value
     }
 
     /**
@@ -343,9 +273,9 @@ public class TinyDB {
      * @param key   SharedPreferences key
      * @param value int value to be added
      */
-    public void putInt(String key, int value) {
-        checkForNullKey(key);
-        preferences.edit().putInt(key, value).apply();
+    fun putInt(key: String?, value: Int) {
+        checkForNullKey(key)
+        preferences.edit().putInt(key, value).apply()
     }
 
     /**
@@ -354,10 +284,10 @@ public class TinyDB {
      * @param key     SharedPreferences key
      * @param intList ArrayList of Integer to be added
      */
-    public void putListInt(String key, ArrayList<Integer> intList) {
-        checkForNullKey(key);
-        Integer[] myIntList = intList.toArray(new Integer[intList.size()]);
-        preferences.edit().putString(key, TextUtils.join("‚‗‚", myIntList)).apply();
+    fun putListInt(key: String?, intList: ArrayList<Int>) {
+        checkForNullKey(key)
+        val myIntList = intList.toTypedArray()
+        preferences.edit().putString(key, TextUtils.join("‚‗‚", myIntList)).apply()
     }
 
     /**
@@ -366,9 +296,9 @@ public class TinyDB {
      * @param key   SharedPreferences key
      * @param value long value to be added
      */
-    public void putLong(String key, long value) {
-        checkForNullKey(key);
-        preferences.edit().putLong(key, value).apply();
+    fun putLong(key: String?, value: Long) {
+        checkForNullKey(key)
+        preferences.edit().putLong(key, value).apply()
     }
 
     /**
@@ -377,9 +307,9 @@ public class TinyDB {
      * @param key   SharedPreferences key
      * @param value float value to be added
      */
-    public void putFloat(String key, float value) {
-        checkForNullKey(key);
-        preferences.edit().putFloat(key, value).apply();
+    fun putFloat(key: String?, value: Float) {
+        checkForNullKey(key)
+        preferences.edit().putFloat(key, value).apply()
     }
 
     /**
@@ -388,9 +318,9 @@ public class TinyDB {
      * @param key   SharedPreferences key
      * @param value double value to be added
      */
-    public void putDouble(String key, double value) {
-        checkForNullKey(key);
-        putString(key, String.valueOf(value));
+    fun putDouble(key: String?, value: Double) {
+        checkForNullKey(key)
+        putString(key, value.toString())
     }
 
     /**
@@ -399,10 +329,10 @@ public class TinyDB {
      * @param key        SharedPreferences key
      * @param doubleList ArrayList of Double to be added
      */
-    public void putListDouble(String key, ArrayList<Double> doubleList) {
-        checkForNullKey(key);
-        Double[] myDoubleList = doubleList.toArray(new Double[doubleList.size()]);
-        preferences.edit().putString(key, TextUtils.join("‚‗‚", myDoubleList)).apply();
+    fun putListDouble(key: String?, doubleList: ArrayList<Double>) {
+        checkForNullKey(key)
+        val myDoubleList = doubleList.toTypedArray()
+        preferences.edit().putString(key, TextUtils.join("‚‗‚", myDoubleList)).apply()
     }
 
     /**
@@ -411,10 +341,10 @@ public class TinyDB {
      * @param key   SharedPreferences key
      * @param value String value to be added
      */
-    public void putString(String key, String value) {
-        checkForNullKey(key);
-        checkForNullValue(value);
-        preferences.edit().putString(key, value).apply();
+    fun putString(key: String?, value: String?) {
+        checkForNullKey(key)
+        checkForNullValue(value)
+        preferences.edit().putString(key, value).apply()
     }
 
     /**
@@ -423,31 +353,29 @@ public class TinyDB {
      * @param key        SharedPreferences key
      * @param stringList ArrayList of String to be added
      */
-    public void putListString(String key, ArrayList<String> stringList) {
-        checkForNullKey(key);
-        String[] myStringList = stringList.toArray(new String[stringList.size()]);
-        preferences.edit().putString(key, TextUtils.join("‚‗‚", myStringList)).apply();
+    fun putListString(key: String?, stringList: ArrayList<String>) {
+        checkForNullKey(key)
+        val myStringList = stringList.toTypedArray()
+        preferences.edit().putString(key, TextUtils.join("‚‗‚", myStringList)).apply()
     }
-
-//    public void putListObject(String key, ArrayList<Object> objArray) {
-//        checkForNullKey(key);
-//        Gson gson = new Gson();
-//        ArrayList<String> objStrings = new ArrayList<String>();
-//        for (Object obj : objArray) {
-//            objStrings.add(gson.toJson(obj));
-//        }
-//        putListString(key, objStrings);
-//    }
-
+    //    public void putListObject(String key, ArrayList<Object> objArray) {
+    //        checkForNullKey(key);
+    //        Gson gson = new Gson();
+    //        ArrayList<String> objStrings = new ArrayList<String>();
+    //        for (Object obj : objArray) {
+    //            objStrings.add(gson.toJson(obj));
+    //        }
+    //        putListString(key, objStrings);
+    //    }
     /**
      * Put boolean value into SharedPreferences with 'key' and save
      *
      * @param key   SharedPreferences key
      * @param value boolean value to be added
      */
-    public void putBoolean(String key, boolean value) {
-        checkForNullKey(key);
-        preferences.edit().putBoolean(key, value).apply();
+    fun putBoolean(key: String?, value: Boolean) {
+        checkForNullKey(key)
+        preferences.edit().putBoolean(key, value).apply()
     }
 
     /**
@@ -456,20 +384,20 @@ public class TinyDB {
      * @param key SharedPreferences key
      * @param obj is the Object you want to put
      */
-    public void putObject(String key, Object obj) {
-        checkForNullKey(key);
-        Gson gson = new Gson();
-        putString(key, gson.toJson(obj));
+    fun putObject(key: String?, obj: Any?) {
+        checkForNullKey(key)
+        val gson = Gson()
+        putString(key, gson.toJson(obj))
     }
 
-    public <T> void putListObject(String key, ArrayList<T> objArray) {
-        checkForNullKey(key);
-        Gson gson = new Gson();
-        ArrayList<String> objStrings = new ArrayList<String>();
-        for (T obj : objArray) {
-            objStrings.add(gson.toJson(obj));
+    fun <T> putListObject(key: String?, objArray: ArrayList<T>) {
+        checkForNullKey(key)
+        val gson = Gson()
+        val objStrings = ArrayList<String>()
+        for (obj in objArray) {
+            objStrings.add(gson.toJson(obj))
         }
-        putListString(key, objStrings);
+        putListString(key, objStrings)
     }
 
     /**
@@ -477,8 +405,8 @@ public class TinyDB {
      *
      * @param key SharedPreferences key
      */
-    public void clearPrefrences(String key) {
-        preferences.edit().remove(key).apply();
+    fun clearPrefrences(key: String?) {
+        preferences.edit().remove(key).apply()
     }
 
     /**
@@ -487,15 +415,15 @@ public class TinyDB {
      * @param path path of image file
      * @return true if it successfully deleted, false otherwise
      */
-    public boolean deleteImage(String path) {
-        return new File(path).delete();
+    fun deleteImage(path: String?): Boolean {
+        return File(path).delete()
     }
 
     /**
      * Clear SharedPreferences (remove everything)
      */
-    public void clearAll() {
-        preferences.edit().clear().apply();
+    fun clearAll() {
+        preferences.edit().clear().apply()
     }
 
     /**
@@ -503,19 +431,18 @@ public class TinyDB {
      *
      * @return a Map representing a list of key/value pairs from SharedPreferences
      */
-    public Map<String, ?> getAll() {
-        return preferences.getAll();
-    }
+    val all: Map<String, *>
+        get() = preferences.all
 
     /**
      * Register SharedPreferences change listener
      *
      * @param listener listener object of OnSharedPreferenceChangeListener
      */
-    public void registerOnSharedPreferenceChangeListener(
-            SharedPreferences.OnSharedPreferenceChangeListener listener) {
-
-        preferences.registerOnSharedPreferenceChangeListener(listener);
+    fun registerOnSharedPreferenceChangeListener(
+        listener: OnSharedPreferenceChangeListener?
+    ) {
+        preferences.registerOnSharedPreferenceChangeListener(listener)
     }
 
     /**
@@ -523,10 +450,10 @@ public class TinyDB {
      *
      * @param listener listener object of OnSharedPreferenceChangeListener to be unregistered
      */
-    public void unregisterOnSharedPreferenceChangeListener(
-            SharedPreferences.OnSharedPreferenceChangeListener listener) {
-
-        preferences.unregisterOnSharedPreferenceChangeListener(listener);
+    fun unregisterOnSharedPreferenceChangeListener(
+        listener: OnSharedPreferenceChangeListener?
+    ) {
+        preferences.unregisterOnSharedPreferenceChangeListener(listener)
     }
 
     /**
@@ -534,9 +461,9 @@ public class TinyDB {
      *
      * @param key pref key
      */
-    public void checkForNullKey(String key) {
+    fun checkForNullKey(key: String?) {
         if (key == null) {
-            throw new NullPointerException();
+            throw NullPointerException()
         }
     }
 
@@ -545,10 +472,41 @@ public class TinyDB {
      *
      * @param value pref key
      */
-    public void checkForNullValue(String value) {
+    fun checkForNullValue(value: String?) {
         if (value == null) {
-            throw new NullPointerException();
+            throw NullPointerException()
         }
     }
 
+    companion object {
+        private var instance: TinyDB? = null
+        fun getInstance(context: Context): TinyDB? {
+            return if (instance != null) instance else TinyDB(context).also {
+                instance = it
+            }
+        }
+
+        /**
+         * Check if external storage is writable or not
+         *
+         * @return true if writable, false otherwise
+         */
+        val isExternalStorageWritable: Boolean
+            get() = (Environment.MEDIA_MOUNTED == Environment.getExternalStorageState())
+
+        /**
+         * Check if external storage is readable or not
+         *
+         * @return true if readable, false otherwise
+         */
+        val isExternalStorageReadable: Boolean
+            get() {
+                val state = Environment.getExternalStorageState()
+                return Environment.MEDIA_MOUNTED == state || Environment.MEDIA_MOUNTED_READ_ONLY == state
+            }
+    }
+
+    init {
+        preferences = appContext.getSharedPreferences(FILE_NAME_SHARED_PREF, Context.MODE_PRIVATE)
+    }
 }

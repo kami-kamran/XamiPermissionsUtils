@@ -23,7 +23,7 @@ class PermissionsUtil private constructor(private val context: Context?, private
 
 
     override fun onCreate(owner: LifecycleOwner) {
-        tinyDB= TinyDB(context)
+        tinyDB= context?.let { TinyDB(it) }
         getContent = registry.register(KEY, owner, ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             if (permissions.all { it.value }) {
                 this.callBack.onPermissionGranted()
