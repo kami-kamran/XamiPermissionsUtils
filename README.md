@@ -5,10 +5,13 @@ A Permission Helper class to Request Permission Launcher with Kotlin in Android.
 implementation 'com.github.kami-kamran:XamiPermissionsUtils:964dfbc110'
 
  #### How to use inside Activity ####
-var permissionsUtil: PermissionsUtil? = null
- permissionsUtil = PermissionsUtil.getInstance(this@MainActivity, this.activityResultRegistry)
-        lifecycle.addObserver(permissionsUtil!!)
+
         
+        var permissionsUtil: PermissionsUtil? = null
+   
+ permissionsUtil = PermissionsUtil.getInstance(this@MainActivity, this.activityResultRegistry)
+ 
+        lifecycle.addObserver(permissionsUtil!!)
         
           private fun requestSMSPermission() {
        permissionsUtil?.let { permission ->
