@@ -21,9 +21,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestSMSPermission() {
-
        permissionsUtil?.let { permission ->
-           Toast.makeText(this, "Permission", Toast.LENGTH_SHORT).show()
                 permission.requestPermission(
                    PermissionMsg = "App Required Permission to continue",
                   permission =   arrayOf(
