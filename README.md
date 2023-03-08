@@ -3,7 +3,7 @@ A Permission Helper class to Request Permission Launcher with Kotlin in Android.
 
 1) Add this SDK in your App gradle
 ### SDK ####
- ### implementation 'com.github.kami-kamran:XamiPermissionsUtils:0.0.1' ###
+ ### implementation 'com.github.kami-kamran:XamiPermissionsUtils:0.0.2' ###
 
  #### How to use inside Activity ####
 
