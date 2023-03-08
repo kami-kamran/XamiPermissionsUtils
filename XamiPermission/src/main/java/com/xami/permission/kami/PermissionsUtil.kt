@@ -73,10 +73,10 @@ class PermissionsUtil private constructor(private val context: Context?, private
                 val alertDialogBuilder = AlertDialog.Builder(context)
                 alertDialogBuilder.setMessage(permissionMessage)
                 alertDialogBuilder.setPositiveButton("Allow"
-                ) { arg0, arg1 ->
+                ) { _, _ ->
                     openSetting()
                 }
-                alertDialogBuilder.setNegativeButton("Cancel") { dialog, which ->
+                alertDialogBuilder.setNegativeButton("Cancel") { _, _ ->
                     if(::callBack.isInitialized) callBack.onPermissionCancel()
                 }
                 val alertDialog = alertDialogBuilder.create()
